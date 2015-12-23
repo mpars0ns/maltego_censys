@@ -2,6 +2,7 @@
 This script is written by Mark Parsons and is to be used in Maltego to lookup IP addresses in Censys.io and look for
 ssl certificates
 Date: 12/22/2015
+This assumes this script is first, uid is second, secreted is third, ip is fourth and the related object is 5th
 """
 import requests
 import json
@@ -11,9 +12,13 @@ from MaltegoTransform import *
 
 def main():
     mt = MaltegoTransform()
-    ip = sys.argv[1]
-    censys_uid = 'Enter_your_uid_here'
-    censys_secret = 'Enter_your_uid_here'
+    if len(sys.argv) != 5:
+        mt.addException("You appear to be missing your uid and secret. Here is what was in your path: {s}".format(
+            s=sys.argv))
+        mt.throwExceptions()
+    censys_uid = sys.argv[1]
+    censys_secret = sys.argv[2]
+    ip = sys.argv[3]
     auth = (censys_uid, censys_secret)
     query = {'query': 'ip: {ip}'.format(ip=ip), 'fields': ['443.https.tls.certificate.parsed.fingerprint_sha1',
                                                            '443.https.tls.certificate.parsed.issuer_dn',
@@ -38,21 +43,23 @@ def main():
                         mt.addUIMessage("Hmm there is info on the IP but not ssl :( ")
             else:
                 mt.addUIMessage("No SSL certs were found on this ip: {ip}".format(ip=ip))
-        if request.status_code == 400:
-            results = request.json()
-            mt.addUIMessage(str(results['error']))
-        if request.status_code == 429:
-            results = request.json()
-            mt.addUIMessage(str(results['error']))
-        if request.status_code == 404:
-            mt.addUIMessage("No SSL certs were found on this ip: {ip}".format(ip=ip))
-        if request.status_code == 500:
-            mt.addUIMessage("There has been a server error!!!")
-        mt.returnOutput()
+            mt.returnOutput()
+        else:
+            if request.status_code == 400:
+                results = request.json()
+                mt.addException(str(results['error']))
+            if request.status_code == 429:
+                results = request.json()
+                mt.addException(str(results['error']))
+            if request.status_code == 404:
+                mt.addException("No SSL certs were found on this ip: {ip}".format(ip=ip))
+            if request.status_code == 500:
+                mt.addException("There has been a server error!!!")
+            mt.throwExceptions()
 
     except requests.exceptions.RequestException as e:
-        mt.addUIMessage(str(e))
-        mt.returnOutput()
+        mt.addException(str(e))
+        mt.throwExceptions()
 
 if __name__ == "__main__":
     try:
