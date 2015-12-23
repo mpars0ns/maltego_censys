@@ -20,4 +20,4 @@ Basic Maltego Transforms for looking up SSL certs and IP info from censys.io
 * Working directory    Path to cloned Repo
 
 If you can't fit your API UID and SECRET in easily when setting up the transform. You can click manage transforms, find
-the transforms that you created above. Click the ... next to Command Parameters and type them in there. You should get something like this [Screen Capture](docs/images/censys_transform_params.png)
+the transforms that you created above. Click the ... next to Command Parameters and type them in there. You should get something like this ![alt text](docs/images/censys_transform_params.png)
