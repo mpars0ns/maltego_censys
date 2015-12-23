@@ -1,3 +1,8 @@
+"""
+This script is written by Mark Parsons and is to be used in Maltego to lookup IP addresses in Censys.io and look for
+ssl certificates
+Date: 12/22/2015
+"""
 import requests
 import json
 import sys

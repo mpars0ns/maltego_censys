@@ -1,3 +1,7 @@
+"""
+This script is written by Mark Parsons and is to be used in Maltego to lookup SSL SHA1 certificates in Censys.io
+Date: 12/22/2015
+"""
 import requests
 import sys
 import json
