@@ -7,6 +7,8 @@ Basic Maltego Transforms for looking up SSL certs and IP info from censys.io
 * Create the local transforms
 
 ## Sample Local Transforms Setup
+Please note - if you have passive total transforms or any other transforms that are using a ssl certificate entity. For the SSL Cert to IP Lookup you will want the censys.io ssl certificate entity that was imported in the second step above.
+
 ###IP to SSL Lookup
 * Transform Name: [Censys.io] IP to SSL Lookup
 * Command: /usr/bin/python
