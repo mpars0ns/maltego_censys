@@ -97,11 +97,15 @@ def process_results(results, mt):
         if 'ip' in result:
             ip = result['ip']
             updated = result['updated_at'][0]
-            subject = result['443.https.tls.certificate.parsed.subject.common_name.raw'][0]
-            issuer = result['443.https.tls.certificate.parsed.issuer.common_name.raw'][0]
+            if '443.https.tls.certificate.parsed.subject.common_name.raw' in result:
+                subject = result['443.https.tls.certificate.parsed.subject.common_name.raw'][0]
+                mt.addEntity("censys.subjectcn", subject)
+            if '443.https.tls.certificate.parsed.issuer.common_name.raw' in result:
+                issuer = result['443.https.tls.certificate.parsed.issuer.common_name.raw'][0]
+                mt.addEntity("censys.issuercn", issuer)
+
             newip = mt.addEntity("maltego.IPv4Address", ip)
-            newissuer = mt.addEntity("censys.issuercn", issuer)
-            newsubject = mt.addEntity("censys.subjectcn", subject)
+
             newip.addAdditionalFields("property.last_updated", "Last updated time", True, updated)
         else:
             mt.addUIMessage("Hmm there is info on the SSL Hash but no ip info :( sadness")
