@@ -97,11 +97,25 @@ def main():
 
 def parse_results(results, mt):
     for result in results:
-        if '443.https.tls.certificate.parsed.fingerprint_sha1' in result:
-            sha1 = result['443.https.tls.certificate.parsed.fingerprint_sha1'][0]
-            issuer = result['443.https.tls.certificate.parsed.issuer_dn'][0]
-            subject = result['443.https.tls.certificate.parsed.subject_dn'][0]
-            updated = result['updated_at'][0]
+        if '443' in result and 'https' in result['443'] and 'tls' in result['443']['https'] and 'certificate' in \
+                result['443']['https']['tls'] and 'parsed' in result['443']['https']['tls']['certificate'] :
+            parsed = result['443']['https']['tls']['certificate']['parsed']
+            if 'fingerprint_sha1' in parsed:
+                sha1 = parsed['fingerprint_sha1']
+            else:
+                sha1 = "No sha1 found"
+            if 'issuer_dn' in parsed:
+                issuer = parsed['issuer_dn'].encode('utf-8').strip()
+            else:
+                issuer = "No issuer found"
+            if 'subject_dn' in parsed:
+                subject = parsed['subject_dn'].encode('utf-8').strip()
+            else:
+                subject = "No subject found"
+            if 'updated_at' in result:
+                updated = result['updated_at']
+            else:
+                updated = "No updated_at timestamp"
             sslcert = mt.addEntity("censys.sslcertificate", sha1)
             sslcert.addAdditionalFields("property.issuer", "Cert Issuer", True, issuer)
             sslcert.addAdditionalFields("property.subject", "Cert Subject", True, subject)

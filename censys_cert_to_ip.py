@@ -19,9 +19,9 @@ def main():
     censys_secret = sys.argv[2]
     auth = (censys_uid, censys_secret)
     page = 1
-    query = {'query': '443.https.tls.certificate.parsed.fingerprint_sha1: {s}'.format(s=sha1),
-             'fields': ['ip', '443.https.tls.certificate.parsed.subject.common_name.raw',
-                        '443.https.tls.certificate.parsed.issuer.common_name.raw', 'updated_at'], 'page': page}
+    query = {'query': '443.https.tls.certificate.parsed.fingerprint_sha1: \"{s}\"'.format(s=sha1),
+             'fields': ['ip', '443.https.tls.certificate.parsed.subject.common_name',
+                        '443.https.tls.certificate.parsed.issuer.common_name', 'updated_at'], 'page': page}
     try:
         request = requests.post('https://www.censys.io/api/v1/search/ipv4', data=json.dumps(query), auth=auth)
         if request.status_code == 200:
@@ -97,13 +97,16 @@ def process_results(results, mt):
         if 'ip' in result:
             ip = result['ip']
             updated = result['updated_at'][0]
-            if '443.https.tls.certificate.parsed.subject.common_name.raw' in result:
-                subject = result['443.https.tls.certificate.parsed.subject.common_name.raw'][0]
-                mt.addEntity("censys.subjectcn", subject)
-            if '443.https.tls.certificate.parsed.issuer.common_name.raw' in result:
-                issuer = result['443.https.tls.certificate.parsed.issuer.common_name.raw'][0]
-                mt.addEntity("censys.issuercn", issuer)
-
+            if '443' in result and 'https' in result['443'] and 'tls' in result['443']['https'] and 'certificate' in \
+                    result['443']['https']['tls'] and 'parsed' in result['443']['https']['tls']['certificate']:
+                if 'subject' in result['443']['https']['tls']['certificate']['parsed'] and \
+                    'common_name' in result['443']['https']['tls']['certificate']['parsed']['subject']:
+                    subject = result['443']['https']['tls']['certificate']['parsed']['subject']['common_name'][0]
+                    mt.addEntity("censys.subjectcn", subject)
+                if 'issuer' in result['443']['https']['tls']['certificate']['parsed'] and \
+                                'common_name' in result['443']['https']['tls']['certificate']['parsed']['issuer']:
+                    issuer = result['443']['https']['tls']['certificate']['parsed']['issuer']['common_name'][0]
+                    mt.addEntity("censys.issuercn", issuer)
             newip = mt.addEntity("maltego.IPv4Address", ip)
 
             newip.addAdditionalFields("property.last_updated", "Last updated time", True, updated)
